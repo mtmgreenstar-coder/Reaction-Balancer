@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موازنه‌گر معادلات شیمیایی</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #1a2e3a 0%, #234a5e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .card {
+            background: #ffffff;
+            max-width: 900px;
+            width: 100%;
+            padding: 30px 25px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid #cbd5e1;
+        }
+        h1 {
+            text-align: center;
+            margin: 0 0 5px 0;
+            font-weight: 700;
+            font-size: 2.2rem;
+            color: #0f3b4f;
+        }
+        .sub {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #3a6579;
+            font-size: 1rem;
+        }
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: 600;
+            color: #1e4a5e;
+            font-size: 1.1rem;
+        }
+        .reaction-input-wrapper {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        #equationInput {
+            flex: 1 1 300px;
+            padding: 14px 18px;
+            font-size: 1.2rem;
+            border: 2px solid #2e7a8c;
+            border-radius: 16px;
+            background: #fafdfe;
+            outline: none;
+            font-family: 'Courier New', monospace;
+            direction: ltr;
+            text-align: left;
+        }
+        #equationInput:focus {
+            border-color: #1a5f70;
+            box-shadow: 0 0 0 3px rgba(46, 122, 140, 0.25);
+        }
+        .btn-primary {
+            background: #1a5f70;
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding: 14px 28px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            border-bottom: 4px solid #0d3a45;
+        }
+        .btn-primary:hover {
+            background: #247a8f;
+            transform: translateY(-1px);
+            border-bottom-width: 5px;
+        }
+        .btn-primary:active {
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+        }
+        .sample-section {
+            background: #e6f3f7;
+            border-radius: 20px;
+            padding: 18px 20px;
+            margin-bottom: 25px;
+        }
+        .sample-title {
+            font-weight: 700;
+            color: #0d3a45;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+        .sample-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sample-btn {
+            background: white;
+            border: 2px solid #2e7a8c;
+            color: #1a5f70;
+            padding: 10px 18px;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+            font-family: 'Courier New', monospace;
+            direction: ltr;
+        }
+        .sample-btn:hover {
+            background: #d4eaf0;
+            border-color: #1a5f70;
+        }
+        .result-box {
+            background: #1e2e38;
+            border-radius: 20px;
+            padding: 22px 24px;
+            color: #e0f2fe;
+        }
+        .result-header {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: #b8e1f0;
+        }
+        #balancedEquation {
+            font-size: 1.9rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            background: #0f2028;
+            padding: 18px 20px;
+            border-radius: 18px;
+            text-align: center;
+            direction: ltr;
+            word-break: break-word;
+            border: 1px solid #4f9eb3;
+            color: #d9f2ff;
+            min-height: 85px;
+        }
+        .error-message {
+            color: #ffb4a2;
+            background: #4a2020;
+            padding: 10px 18px;
+            border-radius: 30px;
+            margin-top: 15px;
+            font-weight: 500;
+            border-right: 5px solid #ff7b6b;
+        }
+        .footer-note {
+            margin-top: 12px;
+            color: #3d6a7a;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>⚖️ موازنه‌گر واکنش</h1>
+    <div class="sub">معادله را وارد کنید و دکمه موازنه را بزنید</div>
+
+    <div class="input-area">
+        <label>🧪 واکنش (مثال: CH4 + O2 = CO2 + H2O)</label>
+        <div class="reaction-input-wrapper">
+            <input type="text" id="equationInput" placeholder="مثلاً: C2H6 + O2 = CO2 + H2O" value="Fe + Cl2 = FeCl3" dir="ltr">
+            <button class="btn-primary" id="balanceBtn">⚡ موازنه کن</button>
+        </div>
+    </div>
+
+    <div class="sample-section">
+        <div class="sample-title">📋 واکنش‌های نمونه (کلیک کنید):</div>
+        <div class="sample-buttons">
+            <button class="sample-btn" data-eq="CH4 + O2 = CO2 + H2O">🔥 CH₄ + O₂</button>
+            <button class="sample-btn" data-eq="C2H5OH + O2 = CO2 + H2O">🍸 اتانول</button>
+            <button class="sample-btn" data-eq="Al + HCl = AlCl3 + H2">🧪 Al + HCl</button>
+            <button class="sample-btn" data-eq="Na + Cl2 = NaCl">🧂 Na + Cl₂</button>
+            <button class="sample-btn" data-eq="Fe2O3 + CO = Fe + CO2">⛏️ Fe₂O₃ + CO</button>
+            <button class="sample-btn" data-eq="C6H12O6 + O2 = CO2 + H2O">🌱 گلوکز</button>
+            <button class="sample-btn" data-eq="NH3 + O2 = NO + H2O">💨 NH₃ + O₂</button>
+            <button class="sample-btn" data-eq="KMnO4 + HCl = KCl + MnCl2 + Cl2 + H2O">🧴 پرمنگنات</button>
+        </div>
+    </div>
+
+    <div class="result-box">
+        <div class="result-header">🧾 معادله موازنه شده</div>
+        <div id="balancedEquation">─</div>
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+    </div>
+    <div class="footer-note">
+        از = یا -> برای جدا کردن دو طرف واکنش استفاده کنید. فرمول‌های دارای پرانتز مثل Fe2(SO4)3 پشتیبانی می‌شوند.
+    </div>
+</div>
+
+<script>
+(function(){
+    const inputField = document.getElementById('equationInput');
+    const balanceBtn = document.getElementById('balanceBtn');
+    const balancedDiv = document.getElementById('balancedEquation');
+    const errorDiv = document.getElementById('errorMessage');
+
+    function showError(msg) {
+        errorDiv.style.display = 'block';
+        errorDiv.textContent = '⚠️ ' + msg;
+        balancedDiv.textContent = '─';
+    }
+
+    function clearError() {
+        errorDiv.style.display = 'none';
+    }
+
+    // تجزیه مولکول به عناصر (پشتیبانی از پرانتز)
+    function parseMolecule(formula) {
+        const counts = {};
+        // تابع بازگشتی ساده برای گسترش
+        function addAtoms(str, multiplier = 1) {
+            let i = 0;
+            const len = str.length;
+            while (i < len) {
+                if (str[i] === '(') {
+                    let depth = 1;
+                    let j = i + 1;
+                    while (j < len && depth > 0) {
+                        if (str[j] === '(') depth++;
+                        else if (str[j] === ')') depth--;
+                        j++;
+                    }
+                    const inner = str.substring(i + 1, j - 1);
+                    let numStr = '';
+                    while (j < len && /\d/.test(str[j])) {
+                        numStr += str[j];
+                        j++;
+                    }
+                    const innerMult = numStr === '' ? 1 : parseInt(numStr, 10);
+                    addAtoms(inner, multiplier * innerMult);
+                    i = j;
+                } else {
+                    const elemMatch = /^[A-Z][a-z]*/.exec(str.substring(i));
+                    if (!elemMatch) { i++; continue; }
+                    const elem = elemMatch[0];
+                    i += elem.length;
+                    let numStr = '';
+                    while (i < len && /\d/.test(str[i])) {
+                        numStr += str[i];
+                        i++;
+                    }
+                    const count = numStr === '' ? 1 : parseInt(numStr, 10);
+                    counts[elem] = (counts[elem] || 0) + count * multiplier;
+                }
+            }
+        }
+        addAtoms(formula);
+        return counts;
+    }
+
+    // تبدیل معادله به فرمت استاندارد
+    function parseEquation(eqStr) {
+        let sides = eqStr.split(/\s*=\s*|->/);
+        if (sides.length !== 2) throw new Error('از "=" یا "->" برای جداکننده استفاده کنید.');
+        const left = sides[0].trim();
+        const right = sides[1].trim();
+        if (!left || !right) throw new Error('هر دو طرف معادله باید مقدار داشته باشند.');
+        
+        const reactants = left.split('+').map(s => s.trim()).filter(s => s);
+        const products = right.split('+').map(s => s.trim()).filter(s => s);
+        if (reactants.length === 0 || products.length === 0) throw new Error('حداقل یک ماده در هر طرف نیاز است.');
+        
+        return { reactants, products };
+    }
+
+    // حل دستگاه با روش حذف گاوسی برای یافتن ضرایب صحیح
+    function balanceEquation(reactants, products) {
+        const all = [...reactants, ...products];
+        const nR = reactants.length;
+        const nP = products.length;
+        const n = all.length;
+        
+        // parse همه
+        const parsed = all.map(f => parseMolecule(f));
+        
+        // جمع‌آوری عناصر
+        const elemSet = new Set();
+        parsed.forEach(p => Object.keys(p).forEach(el => elemSet.add(el)));
+        const elements = Array.from(elemSet).sort();
+        if (elements.length === 0) throw new Error('عنصری شناسایی نشد.');
+        
+        // ساخت ماتریس: سطر = عنصر، ستون = ماده
+        const matrix = [];
+        for (let el of elements) {
+            const row = [];
+            for (let i = 0; i < n; i++) {
+                let val = parsed[i][el] || 0;
+                // واکنش‌دهنده مثبت، فراورده منفی
+                row.push(i < nR ? val : -val);
+            }
+            matrix.push(row);
+        }
+        
+        const rows = matrix.length;
+        const cols = n;
+        
+        // کپی ماتریس
+        let A = matrix.map(r => [...r]);
+        
+        // حذف گاوسی برای پیدا کردن فضای پوچ
+        let lead = 0;
+        const pivotCols = [];
+        for (let r = 0; r < rows && lead < cols; r++) {
+            let i = r;
+            while (i < rows && Math.abs(A[i][lead]) < 1e-10) i++;
+            if (i === rows) {
+                lead++;
+                r--;
+                continue;
+            }
+            // swap
+            [A[r], A[i]] = [A[i], A[r]];
+            const pivot = A[r][lead];
+            pivotCols.push(lead);
+            
+            // نرمال‌سازی سطر (تقسیم بر pivot)
+            for (let j = 0; j < cols; j++) A[r][j] /= pivot;
+            
+            // صفر کردن بقیه سطرها
+            for (let k = 0; k < rows; k++) {
+                if (k !== r && Math.abs(A[k][lead]) > 1e-10) {
+                    const factor = A[k][lead];
+                    for (let j = 0; j < cols; j++) {
+                        A[k][j] -= factor * A[r][j];
+                    }
+                }
+            }
+            lead++;
+        }
+        
+        // ستون‌های آزاد
+        const freeCols = [];
+        for (let j = 0; j < cols; j++) {
+            if (!pivotCols.includes(j)) freeCols.push(j);
+        }
+        if (freeCols.length === 0) throw new Error('این معادله قابل موازنه نیست (جواب صفر).');
+        
+        const freeIdx = freeCols[0];
+        let coeffs = new Array(cols).fill(0);
+        coeffs[freeIdx] = 1;
+        
+        // حل بر اساس ماتریس کاهش یافته
+        for (let r = 0; r < rows; r++) {
+            let pivotCol = -1;
+            for (let j = 0; j < cols; j++) {
+                if (Math.abs(A[r][j] - 1) < 1e-9) { pivotCol = j; break; }
+            }
+            if (pivotCol === -1) continue;
+            let sum = 0;
+            for (let j = 0; j < cols; j++) {
+                if (j === pivotCol) continue;
+                sum += A[r][j] * coeffs[j];
+            }
+            coeffs[pivotCol] = -sum;
+        }
+        
+        // تبدیل به اعداد صحیح
+        function gcd(a, b) {
+            a = Math.abs(a); b = Math.abs(b);
+            while (b) { let t = b; b = a % b; a = t; }
+            return a;
+        }
+        function lcm(a, b) { return (a * b) / gcd(a, b); }
+        
+        // مخرج مشترک
+        let denoms = [];
+        coeffs.forEach(c => {
+            if (Math.abs(c) < 1e-10) return;
+            for (let d = 1; d <= 20; d++) {
+                if (Math.abs(c * d - Math.round(c * d)) < 1e-8) {
+                    denoms.push(d);
+                    break;
+                }
+            }
+        });
+        let commonDen = 1;
+        if (denoms.length) commonDen = denoms.reduce((a,b) => lcm(a,b), 1);
+        
+        let intCoeffs = coeffs.map(c => Math.round(c * commonDen));
+        let overallGcd = intCoeffs.reduce((g, v) => gcd(g, Math.abs(v)), 0);
+        if (overallGcd > 1) intCoeffs = intCoeffs.map(c => c / overallGcd);
+        
+        // اطمینان از مثبت بودن
+        intCoeffs = intCoeffs.map(c => Math.abs(c));
+        if (intCoeffs.every(c => c === 0)) throw new Error('ضرایب نامعتبر.');
+        
+        const rCoeffs = intCoeffs.slice(0, nR);
+        const pCoeffs = intCoeffs.slice(nR);
+        return { rCoeffs, pCoeffs };
+    }
+
+    function formatBalanced(reactants, rCoeffs, products, pCoeffs) {
+        const left = reactants.map((f, i) => (rCoeffs[i] === 1 ? '' : rCoeffs[i]) + f).join(' + ');
+        const right = products.map((f, i) => (pCoeffs[i] === 1 ? '' : pCoeffs[i]) + f).join(' + ');
+        return left + ' → ' + right;
+    }
+
+    function performBalance() {
+        const raw = inputField.value.trim();
+        if (!raw) {
+            showError('معادله را وارد کنید.');
+            return;
+        }
+        try {
+            const { reactants, products } = parseEquation(raw);
+            const { rCoeffs, pCoeffs } = balanceEquation(reactants, products);
+            const result = formatBalanced(reactants, rCoeffs, products, pCoeffs);
+            balancedDiv.textContent = result;
+            clearError();
+        } catch (e) {
+            showError(e.message);
+        }
+    }
+
+    balanceBtn.addEventListener('click', performBalance);
+    inputField.addEventListener('keypress', (e) => { if(e.key === 'Enter') performBalance(); });
+    
+    // دکمه‌های نمونه
+    document.querySelectorAll('.sample-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const eq = btn.getAttribute('data-eq');
+            if (eq) {
+                inputField.value = eq;
+                performBalance();
+            }
+        });
+    });
+
+    // اجرای اولیه
+    performBalance();
+})();
+</script>
+</body>
+</html>
