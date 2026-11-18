@@ -29,7 +29,9 @@ jobs:
           [IO.File]::WriteAllBytes("$PWD/build/logo.jpg", [Convert]::FromBase64String($encoded))
           @'
           from PIL import Image
-          Image.open("build/logo.jpg").convert("RGBA").save(
+          Image.open("build/logo.jpg").convert("RGBA").resize(
+              (256, 256), Image.Resampling.LANCZOS
+          ).save(
               "build/icon.ico",
               format="ICO",
               sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)]
