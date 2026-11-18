@@ -1,0 +1,42 @@
+package com.greenstar.reactionbalancer;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.graphics.Color;
+import android.view.View;
+
+public class MainActivity extends Activity {
+    private WebView webView;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getWindow().setStatusBarColor(Color.rgb(26, 46, 58));
+        getWindow().setNavigationBarColor(Color.rgb(15, 32, 40));
+        webView = new WebView(this);
+        webView.setBackgroundColor(Color.rgb(26, 46, 58));
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setDefaultTextEncodingName("UTF-8");
+        settings.setSupportZoom(true);
+        settings.setBuiltInZoomControls(true);
+        settings.setDisplayZoomControls(false);
+        settings.setAllowFileAccess(false);
+        settings.setAllowContentAccess(false);
+        webView.setWebViewClient(new WebViewClient());
+        webView.setWebChromeClient(new WebChromeClient());
+        setContentView(webView);
+        if (savedInstanceState == null) webView.loadUrl("file:///android_asset/index.html");
+        else webView.restoreState(savedInstanceState);
+    }
+    @Override
+    protected void onSaveInstanceState(Bundle outState) { super.onSaveInstanceState(outState); webView.saveState(outState); }
+    @Override
+    public void onBackPressed() {
+        if (webView != null && webView.canGoBack()) webView.goBack(); else super.onBackPressed();
+    }
+}
