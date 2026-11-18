@@ -40,13 +40,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build Windows installer EXE
+      - name: Build single-file portable Windows EXE
         run: npm run dist:win
 
-      - name: Upload Windows EXE
+      - name: Upload portable Windows EXE
         uses: actions/upload-artifact@v4
         with:
-          name: Reaction-Balancer-Windows-EXE
+          name: Reaction-Balancer-Windows-Portable
           path: dist/*.exe
           if-no-files-found: error
           retention-days: 30
